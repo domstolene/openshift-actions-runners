@@ -1,8 +1,8 @@
-FROM fedora:35
+FROM fedora:41
 
 # Adapted from https://github.com/bbrowning/github-runner/blob/master/Dockerfile
 RUN dnf -y upgrade --security && \
-    dnf -y --setopt=skip_missing_names_on_install=False install \
+    dnf -y install \
     curl git jq hostname procps findutils which openssl && \
     dnf clean all
 
