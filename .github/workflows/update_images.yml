@@ -6,7 +6,7 @@ on:
 
 
 env:
-  REGISTRY_URL: quay.io/redhat-github-actions
+  REGISTRY_URL: ghcr.io/domstolene/gha-self-hosted-runner
 
   BASE_IMG_NAME: runner
   BASE_IMG_DIR: base
@@ -26,10 +26,10 @@ env:
 jobs:
   update_images:
     name: Update images
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: redhat-actions/common/commit-data@v1
         id: commit_data
