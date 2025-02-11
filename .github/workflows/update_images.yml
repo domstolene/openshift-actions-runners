@@ -3,11 +3,13 @@ on:
   push:
     branches: ["main"]
   pull_request:
+  release:
+    types: [published]
   workflow_dispatch:
 
 
 env:
-  REGISTRY_URL: ghcr.io/domstolene/gha-self-hosted-runner
+  REGISTRY_URL: ghcr.io/domstolene/openshift-actions-runners
 
   BASE_IMG_NAME: runner
   BASE_IMG_DIR: base
@@ -28,6 +30,9 @@ jobs:
   update_images:
     name: Update images
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -125,28 +130,21 @@ jobs:
           echo "Base image is '$BASE_IMG'"
           echo BASE_IMG=$BASE_IMG >> $GITHUB_ENV
 
-      - name: Build base image
-        if: env.BASE_CHANGED == 'true'
-        uses: redhat-actions/buildah-build@v2
-        id: build_base_img
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          image: ${{ env.BASE_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          oci: true
-          context:
-            ${{ env.BASE_IMG_DIR }}
-          dockerfiles:
-            ${{ env.BASE_IMG_DIR }}/Containerfile
-
-      - name: Push base image
-        if: steps.commit_data.outputs.is_pr == 'false' && env.BASE_CHANGED == 'true'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ env.BASE_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
           registry: ${{ env.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push base image
+        if: env.BASE_CHANGED == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.BASE_IMG_DIR }}
+          file: ${{ env.BASE_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.BASE_IMG_NAME }}${{ env.IMG_TAGS }}
 
       - name: Determine if child images should be built
         run: |
@@ -163,122 +161,50 @@ jobs:
           fi
           echo "BUILD_CHILDREN=$BUILD_CHILDREN" >> $GITHUB_ENV
 
-      - name: Build buildah image
+      - name: Build and push buildah image
         if: |
           always() &&
           env.BUILDAH_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
-        id: build_buildah
-        uses: redhat-actions/buildah-build@v2
+        uses: docker/build-push-action@v6
         with:
-          image: ${{ env.BUILDAH_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          oci: true
-          context:
-            ${{ env.BUILDAH_IMG_DIR }}
-          dockerfiles:
-            ${{ env.BUILDAH_IMG_DIR }}/Containerfile
-          build-args: |
-            BASE_IMG=${{ env.BASE_IMG }}
+          context: ${{ env.BUILDAH_IMG_DIR }}
+          file: ${{ env.BUILDAH_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.BUILDAH_IMG_NAME }}:${{ env.IMG_TAGS }}
 
-      - name: Push buildah image
-        if: |
-          steps.build_buildah.outcome == 'success' &&
-          steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ env.BUILDAH_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          registry: ${{ env.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build K8s tools image
+      - name: Build and push K8s tools image
         if: |
           always() &&
           env.K8S-TOOLS_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
-        uses: redhat-actions/buildah-build@v2
-        id: build_k8s
+        uses: docker/build-push-action@v6
         with:
-          image: ${{ env.K8S_TOOLS_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          oci: true
-          context:
-            ${{ env.K8S_TOOLS_IMG_DIR }}
-          dockerfiles:
-            ${{ env.K8S_TOOLS_IMG_DIR }}/Containerfile
-          build-args: |
-            BASE_IMG=${{ env.BASE_IMG }}
+          context: ${{ env.K8S_TOOLS_IMG_DIR }}
+          file: ${{ env.K8S_TOOLS_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.K8S_TOOLS_IMG_NAME }}:${{ env.IMG_TAGS }}
 
-      - name: Push K8s tools image
-        if: |
-          steps.build_k8s.outcome == 'success' &&
-          steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ env.K8S_TOOLS_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          registry: ${{ env.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build Node image
+      - name: Build and push node image
         if: |
           always() &&
           env.NODE_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
-        id: build_node
-        uses: redhat-actions/buildah-build@v2
+        uses: docker/build-push-action@v6
         with:
-          image: ${{ env.NODE_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          oci: true
-          context:
-            ${{ env.NODE_IMG_DIR }}
-          dockerfiles:
-            ${{ env.NODE_IMG_DIR }}/Containerfile
-          build-args: |
-            BASE_IMG=${{ env.BASE_IMG }}
+          context: ${{ env.NODE_IMG_DIR }}
+          file: ${{ env.NODE_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.NODE_IMG_NAME }}:${{ env.IMG_TAGS }}
 
-      - name: Push Node image
-        if: |
-          steps.build_node.outcome == 'success' &&
-          steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ env.NODE_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          registry: ${{ env.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build Java image
+      - name: Build and push java image
         if: |
           always() &&
-          env.JAVA_CHANGED == 'true' &&
+          env.NODE_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
-        id: build_java
-        uses: redhat-actions/buildah-build@v2
+        uses: docker/build-push-action@v6
         with:
-          image: ${{ env.JAVA_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          oci: true
-          context:
-            ${{ env.JAVA_IMG_DIR }}
-          dockerfiles:
-            ${{ env.JAVA_IMG_DIR }}/Containerfile
-          build-args: |
-            BASE_IMG=${{ env.BASE_IMG }}
-
-      - name: Push Java image
-        if: |
-          steps.build_java.outcome == 'success' &&
-          steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ env.JAVA_IMG_NAME }}
-          tags: ${{ env.IMG_TAGS }}
-          registry: ${{ env.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          context: ${{ env.JAVA_IMG_DIR }}
+          file: ${{ env.JAVA_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.JAVA_IMG_DIR }}:${{ env.IMG_TAGS }}

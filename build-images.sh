@@ -3,7 +3,7 @@
 set -eEu -o pipefail
 
 # Replace with your username. Don't push your dev images to redhat-github-actions.
-REGISTRY=${RUNNERS_REGISTRY:-ghcr.io/domstolene}
+REGISTRY=${RUNNERS_REGISTRY:-ghcr.io/domstolene/openshift-actions-runners}
 TAG=${RUNNERS_TAG:-latest}
 
 BASE_IMG=${REGISTRY}/runner:${TAG}
