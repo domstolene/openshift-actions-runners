@@ -138,13 +138,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push base image
+        id: build_base_img
         if: env.BASE_CHANGED == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ${{ env.BASE_IMG_DIR }}
           file: ${{ env.BASE_IMG_DIR }}/Containerfile
           push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
-          tags: ${{ env.REGISTRY_URL }}/${{ env.BASE_IMG_NAME }}${{ env.IMG_TAGS }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.BASE_IMG_NAME }}:${{ env.IMG_TAGS }}
 
       - name: Determine if child images should be built
         run: |

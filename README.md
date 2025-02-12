@@ -1,9 +1,9 @@
 # OpenShift GitHub Actions Runners
 
-[![Update Runner Images](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/update_images.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/update_images.yml)
-[![Link checker](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/link_check.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/link_check.yml)
+[![Update Runner Images](https://github.com/domstolene/openshift-actions-runners/actions/workflows/update_images.yml/badge.svg)](https://github.com/domstolene/openshift-actions-runners/actions/workflows/update_images.yml)
+[![Link checker](https://github.com/domstolene/openshift-actions-runners/actions/workflows/link_check.yml/badge.svg)](https://github.com/domstolene/openshift-actions-runners/actions/workflows/link_check.yml)
 
-[![Tag](https://img.shields.io/github/v/tag/redhat-actions/openshift-actions-runner)](https://github.com/redhat-actions/openshift-actions-runner/tags)
+[![Tag](https://img.shields.io/github/v/tag/domstolene/openshift-actions-runners)](https://github.com/domstolene/openshift-actions-runners/tags)
 [![Quay org](https://img.shields.io/badge/quay-redhat--github--actions-red)](https://quay.io/organization/redhat-github-actions)
 
 This repository contains Containerfiles for building container images that act as [self-hosted GitHub Action runners](https://docs.github.com/en/free-pro-team@latest/actions/hosting-your-own-runners/about-self-hosted-runners) that work on OpenShift.
@@ -39,11 +39,11 @@ See the [base image README](./base/#own-image).
 ## Running Locally
 You can run the images locally to test and develop.
 
-To launch and connect a runner to `redhat-actions/openshift-actions-runner` with the labels `local` and `podman`:
+To launch and connect a runner to `domstolene/openshift-actions-runner` with the labels `local` and `podman`:
 ```sh
 podman run \
     --env GITHUB_PAT=$GITHUB_PAT \
-    --env GITHUB_OWNER=redhat-actions \
+    --env GITHUB_OWNER=domstolene \
     --env GITHUB_REPOSITORY=openshift-actions-runner \
     --env RUNNER_LABELS="local,podman" \
     quay.io/redhat-github-actions/runner:latest
@@ -94,7 +94,7 @@ If the containers crash on startup, it is usually because one of the environment
 - If the container crashes with an HTTP 404 error, the `GITHUB_OWNER` or `GITHUB_REPOSITORY` is incorrect or misspelled.
     - This will also happen if a private repository is selected which the `GITHUB_PAT` does not have permission to view.
 
-If you encounter any other issues, please [open an issue](https://github.com/redhat-actions/openshift-actions-runner/issues) and we will help you work through it.
+If you encounter any other issues, please [open an issue](https://github.com/domstolene/openshift-actions-runners/issues) and we will help you work through it.
 
 ## Credits
 This repository builds on the work done in [bbrowning/github-runner](https://github.com/bbrowning/github-runner), which is forked from [SanderKnape/github-runner](https://github.com/SanderKnape/github-runner).
