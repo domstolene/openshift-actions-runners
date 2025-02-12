@@ -20,11 +20,17 @@ env:
   K8S_TOOLS_IMG_NAME: k8s-tools-runner
   K8S_TOOLS_IMG_DIR: k8s-tools
 
-  NODE_IMG_NAME: node-runner-14
+  NODE_IMG_NAME: node-runner-22
   NODE_IMG_DIR: node
 
   JAVA_IMG_NAME: java-runner-11
   JAVA_IMG_DIR: java
+
+  DEPLOY_IMG_NAME: deploy-runner
+  DEPLOY_IMG_DIR: deploy
+
+  PLAYWRIGHT_IMG_NAME: playwright-runner
+  PLAYWRIGHT_IMG_DIR: playwright
 
 jobs:
   update_images:
@@ -63,6 +69,8 @@ jobs:
               "k8s-tools": false,
               java: false,
               node: false,
+              deploy: false,
+              playwright: false,
             };
 
             Object.keys(dirsChanged).forEach((dir) => {
@@ -201,11 +209,35 @@ jobs:
       - name: Build and push java image
         if: |
           always() &&
-          env.NODE_CHANGED == 'true' &&
+          env.JAVA_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ${{ env.JAVA_IMG_DIR }}
           file: ${{ env.JAVA_IMG_DIR }}/Containerfile
           push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
-          tags: ${{ env.REGISTRY_URL }}/${{ env.JAVA_IMG_DIR }}:${{ env.IMG_TAGS }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.JAVA_IMG_NAME }}:${{ env.IMG_TAGS }}
+
+      - name: Build and push deploy image
+        if: |
+          always() &&
+          env.DEPLOY_CHANGED == 'true' &&
+          env.BUILD_CHILDREN == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.DEPLOY_IMG_DIR }}
+          file: ${{ env.DEPLOY_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.DEPLOY_IMG_NAME }}:${{ env.IMG_TAGS }}
+
+      - name: Build and push playwright image
+        if: |
+          always() &&
+          env.PLAYWRIGHT_CHANGED == 'true' &&
+          env.BUILD_CHILDREN == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.PLAYWRIGHT_IMG_DIR }}
+          file: ${{ env.PLAYWRIGHT_IMG_DIR }}/Containerfile
+          push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
+          tags: ${{ env.REGISTRY_URL }}/${{ env.PLAYWRIGHT_IMG_NAME }}:${{ env.IMG_TAGS }}

@@ -1,0 +1,27 @@
+ARG BASE_IMG=ghcr.io/domstolene/openshift-actions-runners/runner:latest
+FROM $BASE_IMG AS runner
+
+USER root
+
+ARG KUBERNETES_RELEASE=v1.30.4
+RUN curl -LO https://dl.k8s.io/release/${KUBERNETES_RELEASE}/bin/linux/amd64/kubectl
+RUN sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+RUN dnf -y upgrade --security && \
+    dnf -y install \
+    openldap-clients \
+    iputils \
+    samba-client \
+    wget \
+    unzip \
+    java-17-openjdk-devel && \
+    dnf clean all
+
+RUN curl -LO https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz
+RUN tar xzf apache-maven-3.9.9-bin.tar.gz -C /opt
+ENV JAVA_HOME=/usr/lib/jvm/java
+RUN sudo ln -s /opt/apache-maven-3.9.9/bin/mvn /usr/local/bin/mvn
+RUN mvn -version
+
+RUN sudo chmod 4711 /usr/bin/ping
+USER $UID

@@ -4,7 +4,7 @@
 [![Link checker](https://github.com/domstolene/openshift-actions-runners/actions/workflows/link_check.yml/badge.svg)](https://github.com/domstolene/openshift-actions-runners/actions/workflows/link_check.yml)
 
 [![Tag](https://img.shields.io/github/v/tag/domstolene/openshift-actions-runners)](https://github.com/domstolene/openshift-actions-runners/tags)
-[![Quay org](https://img.shields.io/badge/quay-redhat--github--actions-red)](https://quay.io/organization/redhat-github-actions)
+[![Packages](https://img.shields.io/badge/ghcr.io-red)](https://github.com/orgs/domstolene/packages?repo_name=openshift-actions-runners)
 
 This repository contains Containerfiles for building container images that act as [self-hosted GitHub Action runners](https://docs.github.com/en/free-pro-team@latest/actions/hosting-your-own-runners/about-self-hosted-runners) that work on OpenShift.
 

@@ -1,0 +1,40 @@
+ARG BASE_IMG=ghcr.io/domstolene/openshift-actions-runners/runner:latest
+FROM $BASE_IMG AS runner
+
+# Switch to root user to install dependencies
+USER root
+
+# Install Node.js and npm
+RUN dnf install -y nodejs npm
+
+# Install system dependencies
+RUN dnf install -y \
+    atk cups-libs gtk3 ipa-gothic-fonts libXcomposite libXcursor libXdamage \
+    libXext libXi libXrandr libXScrnSaver libXtst pango at-spi2-atk libXt \
+    xorg-x11-server-Xvfb libdrm libgbm alsa-lib chromium firefox webkit2gtk3 \
+    liberation-fonts libappindicator-gtk3 alsa-lib at-spi2-atk at-spi2-core \
+    cairo cups-libs dbus-libs expat fontconfig glib2 nspr nss libpng libX11 \
+    libxcb libXcomposite libXcursor libXdamage libXext libXfixes libXi \
+    libXrandr libXrender libXtst wget xdg-utils && \
+    dnf clean all
+
+# Install Playwright
+RUN npm init -y && \
+    npm install -g playwright
+
+# Set up Playwright browsers directory with correct permissions
+RUN mkdir -p /ms-playwright && \
+    chown -R 1001:1001 /ms-playwright && \
+    chmod -R 755 /ms-playwright
+
+# Switch to the default user for installing browsers
+USER 1001
+
+# Download and install Playwright browsers
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+# Kjører kun chromium i CI, men kunne installert firefox og webkit dersom vi ser
+# det blir mye feil på kryss av nettlesere.
+RUN npx playwright install chromium
+
+# Set the entry point to the entrypoint.sh script
+ENTRYPOINT ["/home/runner/entrypoint.sh"]
