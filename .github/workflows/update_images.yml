@@ -39,6 +39,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pull-requests: write # required for adding pull request comments
 
     steps:
       - uses: actions/checkout@v4
@@ -241,3 +242,13 @@ jobs:
           file: ${{ env.PLAYWRIGHT_IMG_DIR }}/Containerfile
           push: ${{ steps.commit_data.outputs.is_pr == 'false' }}
           tags: ${{ env.REGISTRY_URL }}/${{ env.PLAYWRIGHT_IMG_NAME }}:${{ env.IMG_TAGS }}
+
+
+      ############################################################################
+      # Run Trivy on file system and add report as GitHub PR Comment
+      ############################################################################
+      - name: Trivy Scan and Report to PR
+        if: ${{ steps.commit_data.outputs.is_pr == 'true' }}
+        uses: domstolene/trivy-pr-report@v1.4.0
+        with:
+          github_token: ${{ github.token }}
