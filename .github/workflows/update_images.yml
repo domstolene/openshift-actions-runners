@@ -46,7 +46,7 @@ jobs:
       - uses: redhat-actions/common/commit-data@v1
         id: commit_data
 
-      - uses: lots0logs/gh-action-get-changed-files@2.1.4
+      - uses: lots0logs/gh-action-get-changed-files@2.2.2
         id: get_changed_files
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
