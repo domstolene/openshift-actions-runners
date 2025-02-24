@@ -15,7 +15,7 @@ RUN dnf install -y \
     liberation-fonts libappindicator-gtk3 alsa-lib at-spi2-atk at-spi2-core \
     cairo cups-libs dbus-libs expat fontconfig glib2 nspr nss libpng libX11 \
     libxcb libXcomposite libXcursor libXdamage libXext libXfixes libXi \
-    libXrandr libXrender libXtst wget xdg-utils && \
+    libXrandr libXrender libXtst wget xdg-utils gettext-envsubst && \
     dnf clean all
 
 # Install Playwright
