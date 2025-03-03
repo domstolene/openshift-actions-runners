@@ -14,6 +14,7 @@ RUN dnf -y upgrade --security && \
     samba-client \
     wget \
     unzip \
+    gettext-envsubst \
     java-17-openjdk-devel && \
     dnf clean all
 
