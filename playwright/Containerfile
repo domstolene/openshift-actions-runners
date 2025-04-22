@@ -23,7 +23,7 @@ RUN dnf install -y \
 
 # Install Playwright
 RUN npm init -y && \
-    npm install -g playwright
+    npm install -g playwright@1
 
 # Set up Playwright browsers directory with correct permissions
 RUN mkdir -p /ms-playwright && \
