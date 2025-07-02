@@ -6,7 +6,7 @@ USER root
 
 # update nodesources ref: https://github.com/nodesource/distributions/issues/1747
 RUN curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
-    
+
 # Install Node.js and npm
 RUN dnf install -y nodejs npm
 
@@ -18,7 +18,7 @@ RUN dnf install -y \
     liberation-fonts libappindicator-gtk3 alsa-lib at-spi2-atk at-spi2-core \
     cairo cups-libs dbus-libs expat fontconfig glib2 nspr nss libpng libX11 \
     libxcb libXcomposite libXcursor libXdamage libXext libXfixes libXi \
-    libXrandr libXrender libXtst wget xdg-utils gettext-envsubst && \
+    libXrandr libXrender libXtst wget xdg-utils gettext-envsubst yq && \
     dnf clean all
 
 # Install Playwright
