@@ -14,7 +14,7 @@ RUN dnf install -y nodejs npm
 RUN dnf install -y \
     atk cups-libs gtk3 ipa-gothic-fonts libXcomposite libXcursor libXdamage \
     libXext libXi libXrandr libXScrnSaver libXtst pango at-spi2-atk libXt \
-    xorg-x11-server-Xvfb libdrm libgbm alsa-lib chromium firefox webkit2gtk3 \
+    xorg-x11-server-Xvfb libdrm libgbm alsa-lib chromium firefox webkit2gtk4.1 \
     liberation-fonts libappindicator-gtk3 alsa-lib at-spi2-atk at-spi2-core \
     cairo cups-libs dbus-libs expat fontconfig glib2 nspr nss libpng libX11 \
     libxcb libXcomposite libXcursor libXdamage libXext libXfixes libXi \

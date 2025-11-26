@@ -15,7 +15,7 @@ RUN dnf -y upgrade --security && \
     wget \
     unzip \
     gettext-envsubst \
-    java-17-openjdk-devel && \
+    java-21-openjdk-devel && \
     dnf clean all
 
 RUN curl -LO https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
