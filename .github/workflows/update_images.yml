@@ -54,9 +54,11 @@ jobs:
       - name: Determine changed directories
         id: is_dir_changed
         uses: actions/github-script@v8
+        env:
+          CHANGED_FILES: ${{ steps.get_changed_files.outputs.all }}
         with:
           script: |
-            const changedFiles = ${{ steps.get_changed_files.outputs.all }};
+            const changedFiles = JSON.parse(process.env.CHANGED_FILES || "[]");
             console.log(`Changed files: ${JSON.stringify(changedFiles)}`);
 
             // console.log(`payload ${JSON.stringify(context.payload)}`);
