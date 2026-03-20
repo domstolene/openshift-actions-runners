@@ -16,7 +16,6 @@ RUN dnf -y upgrade --security && \
     unzip \
     gettext-envsubst \
     java-21-openjdk-devel \
-    python3.13 \
     python3-winrm && \
     dnf clean all
 
