@@ -20,9 +20,9 @@ RUN dnf -y upgrade --security && \
     dnf clean all
 
 RUN curl -LO https://dlcdn.apache.org/maven/maven-3/3.9.14/binaries/apache-maven-3.9.14-bin.tar.gz
-RUN tar xzf apache-maven-3.9.11-bin.tar.gz -C /opt
+RUN tar xzf apache-maven-3.9.14-bin.tar.gz -C /opt
 ENV JAVA_HOME=/usr/lib/jvm/java
-RUN sudo ln -s /opt/apache-maven-3.9.11/bin/mvn /usr/local/bin/mvn
+RUN sudo ln -s /opt/apache-maven-3.9.14/bin/mvn /usr/local/bin/mvn
 RUN mvn -version
 
 RUN sudo chmod 4711 /usr/bin/ping
