@@ -4,7 +4,6 @@ FROM fedora:43
 RUN dnf -y upgrade --security && \
     dnf -y install \
     curl git jq hostname procps findutils which openssl && \
-    dnf -y install python3.13 python3-pip && \
     dnf clean all
 
 # The UID env var should be used in child Containerfile.
