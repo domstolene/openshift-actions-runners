@@ -17,7 +17,7 @@ RUN dnf -y upgrade --security && \
     gettext-envsubst \
     java-21-openjdk-devel \
     python3.13 \
-    python3-pip && \
+    python3-winrm && \
     dnf clean all
 
 RUN curl -LO https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
