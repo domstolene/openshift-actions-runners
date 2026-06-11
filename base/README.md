@@ -44,7 +44,3 @@ USER $UID
 ```
 
 Just like that, we have created the [Node runner image](../node/).
-
-### Adjustments
-
-The token for registering and unregistering with Github can now be set via a Vault plugin and the Vault Agent Injector if desired.  
