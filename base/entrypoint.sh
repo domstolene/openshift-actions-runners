@@ -7,19 +7,24 @@ set -eE
 
 CREDS_FILE="${PWD}/.credentials"
 
+# Returns true if any form of PAT authentication is available
+has_github_pat() {
+    [ -f "/vault/secrets/github-pat" ] || [ -n "${GITHUB_PAT:-}" ]
+}
+
 # Assume registration artifacts have been persisted from a previous start
 # if no PAT or TOKEN is provided, and simply attempt to start.
-if [ -n "${GITHUB_PAT:-}" ] || [ -n "${RUNNER_TOKEN:-}" ] || [ -n "${GITHUB_APP_ID:-}" ]; then
+if has_github_pat || [ -n "${RUNNER_TOKEN:-}" ] || [ -n "${GITHUB_APP_ID:-}" ]; then
     source ./register.sh
 elif [ -e "${CREDS_FILE}" ]; then
-    echo "No GITHUB_PAT or RUNNER_TOKEN provided. Using existing credentials file ${CREDS_FILE}."
+    echo "No GITHUB_PAT, Vault-injected token, or RUNNER_TOKEN provided. Using existing credentials file ${CREDS_FILE}."
 else
     echo "No saved credentials found in ${CREDS_FILE}."
-    echo "Fatal: GITHUB_PAT or RUNNER_TOKEN must be set in the environment."
+    echo "Fatal: GITHUB_PAT, /vault/secrets/github-pat, or RUNNER_TOKEN must be set in the environment."
     exit 1
 fi
 
-if [ -n "${GITHUB_PAT:-}" ]; then
+if has_github_pat; then
     trap 'remove; exit 130' INT
     trap 'remove; exit 143' TERM
 elif [ -n "${GITHUB_APP_ID:-}" ]; then

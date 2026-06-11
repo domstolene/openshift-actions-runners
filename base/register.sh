@@ -6,6 +6,23 @@ set -eE
 # Load Github app authentication helper function
 source ./get_github_app_token.sh
 
+# Returns a GitHub PAT either from the Vault-injected file or the environment variable
+github_pat() {
+    if [ -f "/vault/secrets/github-pat" ]; then
+        cat /vault/secrets/github-pat
+    elif [ -n "${GITHUB_PAT:-}" ]; then
+        echo "${GITHUB_PAT}"
+    else
+        echo "Fatal: No GitHub PAT available. Set GITHUB_PAT or inject via Vault to /vault/secrets/github-pat" >&2
+        exit 1
+    fi
+}
+
+# Returns true if any form of PAT authentication is available
+has_github_pat() {
+    [ -f "/vault/secrets/github-pat" ] || [ -n "${GITHUB_PAT:-}" ]
+}
+
 if [ -z "${GITHUB_OWNER:-}" ]; then
     echo "Fatal: \$GITHUB_OWNER must be set in the environment"
     exit 1
@@ -30,7 +47,7 @@ fi
 
 registration_url="https://${GITHUB_DOMAIN}/${GITHUB_OWNER}${GITHUB_REPOSITORY:+/$GITHUB_REPOSITORY}"
 
-if [ -z "${GITHUB_PAT:-}" ] && [ -z "${GITHUB_APP_ID:-}" ]; then
+if ! has_github_pat && [ -z "${GITHUB_APP_ID:-}" ]; then
     echo "Neither GITHUB_PAT nor the GITHUB_APP variables are set in the environment. Automatic runner removal will be disabled."
     echo "Visit ${registration_url}/settings/actions/runners to manually force removal of runner."
 fi
@@ -55,7 +72,7 @@ if [ -z "${RUNNER_TOKEN:-}" ]; then
         payload=$(curl -sSfLX POST -H "Authorization: token ${app_token}" ${token_url})
     else
         echo "Using GITHUB_PAT for authentication."
-        payload=$(curl -sSfLX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url})
+        payload=$(curl -sSfLX POST -H "Authorization: token $(github_pat)" ${token_url})
     fi
 
     export RUNNER_TOKEN=$(echo $payload | jq .token --raw-output)
@@ -104,7 +121,7 @@ if [ -n "${RUNNER_TOKEN:-}" ]; then
 fi
 
 remove() {
-    payload=$(curl -sSfLX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url%/registration-token}/remove-token)
+    payload=$(curl -sSfLX POST -H "Authorization: token $(github_pat)" ${token_url%/registration-token}/remove-token)
     export REMOVE_TOKEN=$(echo $payload | jq .token --raw-output)
 
     ./config.sh remove --unattended --token "${REMOVE_TOKEN}"
