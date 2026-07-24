@@ -19,7 +19,7 @@ jobs:
     name: Check links in markdown
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      - uses: actions/checkout@v7
+      - uses: lycheeverse/lychee-action@v2
         with:
-          use-verbose-mode: true
+          args: --verbose '**/*.md'

@@ -45,7 +45,9 @@ extract() {
     fi
 
     # Return using global var
-    extract_result=$(find $extract_dir -type f -iname "$executable_name*")
+    # Match exact name or name with underscore suffix (e.g. yq_linux_amd64),
+    # but not hyphenated variants (e.g. tkn-pac).
+    extract_result=$(find $extract_dir -type f \( -name "$executable_name" -o -name "${executable_name}_*" \) | head -1)
 
     if [[ -z $extract_result ]]; then
         die "Could not find $executable_name in $extract_dir after extraction"

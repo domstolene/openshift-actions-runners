@@ -26,7 +26,7 @@ env:
   NODE_IMG_NAME: node-runner-22
   NODE_IMG_DIR: node
 
-  JAVA_IMG_NAME: java-runner-21
+  JAVA_IMG_NAME: java-runner
   JAVA_IMG_DIR: java
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
