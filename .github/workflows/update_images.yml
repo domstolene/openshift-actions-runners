@@ -93,7 +93,8 @@ jobs:
             if [[ "$BRANCH" == "main" ]]; then
               IMG_TAGS="latest"
             else
-              IMG_TAGS=$BRANCH
+              # Sanitize branch name for use as image tag (replace / with -)
+              IMG_TAGS=$(echo "$BRANCH" | tr '/' '-')
             fi
           else
             IMG_TAGS="${{ steps.commit_data.outputs.short_sha }}"
@@ -117,7 +118,7 @@ jobs:
 
       - name: Build base image
         if: env.BASE_CHANGED == 'true'
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         id: build_base_img
         with:
           image: ${{ env.BASE_IMG_NAME }}
@@ -130,7 +131,7 @@ jobs:
 
       - name: Push base image
         if: steps.commit_data.outputs.is_pr == 'false' && env.BASE_CHANGED == 'true'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.BASE_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -159,7 +160,7 @@ jobs:
           env.BUILDAH_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         id: build_buildah
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ env.BUILDAH_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -175,7 +176,7 @@ jobs:
         if: |
           steps.build_buildah.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.BUILDAH_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -188,7 +189,7 @@ jobs:
           always() &&
           env.K8S_TOOLS_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         id: build_k8s
         with:
           image: ${{ env.K8S_TOOLS_IMG_NAME }}
@@ -205,7 +206,7 @@ jobs:
         if: |
           steps.build_k8s.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.K8S_TOOLS_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -219,7 +220,7 @@ jobs:
           env.NODE_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         id: build_node
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ env.NODE_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -235,7 +236,7 @@ jobs:
         if: |
           steps.build_node.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.NODE_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -249,7 +250,7 @@ jobs:
           env.JAVA_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         id: build_java
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ env.JAVA_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -265,7 +266,7 @@ jobs:
         if: |
           steps.build_java.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.JAVA_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
