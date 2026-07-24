@@ -23,7 +23,7 @@ _Note: Links are provided further down to create an app for your logged in user 
 * Self-hosted runners (read / write)
 
 
-_Note: All API routes mapped to their permissions can be found [here](https://docs.github.com/en/rest/reference/permissions-required-for-github-apps) if you wish to review_
+_Note: All API routes mapped to their permissions can be found [here](https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps) if you wish to review_
 
 ---
 

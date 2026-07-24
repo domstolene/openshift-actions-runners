@@ -1,8 +1,9 @@
 ARG BASE_IMG=quay.io/redhat-github-actions/runner:latest
-FROM $BASE_IMG AS dotnet-6.0-runner
+FROM $BASE_IMG AS dotnet-runner
 
 USER root
 
-RUN dnf install -y dotnet-sdk-6.0
+# .NET 10 is LTS (supported until November 2028)
+RUN dnf install -y dotnet-sdk-10.0
 
 USER $UID

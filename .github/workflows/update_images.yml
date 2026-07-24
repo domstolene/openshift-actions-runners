@@ -4,6 +4,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY_URL: quay.io/redhat-github-actions
@@ -17,77 +23,62 @@ env:
   K8S_TOOLS_IMG_NAME: k8s-tools-runner
   K8S_TOOLS_IMG_DIR: k8s-tools
 
-  NODE_IMG_NAME: node-runner-14
+  NODE_IMG_NAME: node-runner-22
   NODE_IMG_DIR: node
 
-  JAVA_IMG_NAME: java-runner-11
+  JAVA_IMG_NAME: java-runner
   JAVA_IMG_DIR: java
 
 jobs:
   update_images:
     name: Update images
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
-      - uses: redhat-actions/common/commit-data@v1
+      - uses: redhat-actions/common/commit-data@v2
         id: commit_data
 
-      - uses: lots0logs/gh-action-get-changed-files@2.1.4
-        id: get_changed_files
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Determine changed directories
-        id: is_dir_changed
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const changedFiles = ${{ steps.get_changed_files.outputs.all }};
-            console.log(`Changed files: ${JSON.stringify(changedFiles)}`);
+        shell: bash
+        run: |
+          REBUILD_ALL=false
 
-            // console.log(`payload ${JSON.stringify(context.payload)}`);
-            // console.log(`eventName ${JSON.stringify(context.eventName)}`);
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Workflow triggered by workflow_dispatch; all images will be rebuilt"
+            REBUILD_ALL=true
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "Tag build; all images will be rebuilt"
+            REBUILD_ALL=true
+          else
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} | grep -v '\.md$')
+            else
+              CHANGED_FILES=$(git diff --name-only HEAD~1 | grep -v '\.md$')
+            fi
+            echo "Changed files (excluding docs):"
+            echo "$CHANGED_FILES"
 
-            const BASE = "base";
-            const dirsChanged = {
-              [BASE]: false,
-              buildah: false,
-              "k8s-tools": false,
-              java: false,
-              node: false,
-            };
+            # If base changed, rebuild everything
+            if echo "$CHANGED_FILES" | grep -q "^base/"; then
+              echo "Base image changed; all images will be rebuilt"
+              REBUILD_ALL=true
+            fi
+          fi
 
-            Object.keys(dirsChanged).forEach((dir) => {
-              const changed = changedFiles.find((changedFile) => changedFile.startsWith(dir + "/")) != null;
-              dirsChanged[dir] = changed;
-            });
-
-            let rebuildAll = false;
-            if (context.ref.startsWith("refs/tags/")) {
-              console.log(`Tag build; all images will be rebuilt.`);
-              rebuildAll = true;
-            }
-            else if (context.eventName === "workflow_dispatch") {
-              console.log(`Workflow triggered by workflow_dispatch; all images will be rebuilt`);
-              rebuildAll = true;
-            }
-            else if (dirsChanged[BASE]) {
-              console.log("Base image changed; all images will be rebuilt.");
-              rebuildAll = true;
-            }
-
-            Object.keys(dirsChanged).forEach((dir) => {
-              const changed = rebuildAll || dirsChanged[dir];
-
-              const outputName = (dir + "_changed").toUpperCase();
-              console.log(`${outputName}=${changed}`)
-              core.exportVariable(outputName, changed);
-            });
-
-            // const anyChanged = Object.entries(dirsChanged).find(([k, v] => dirsChanged[k]));
-            return dirsChanged;
+          for dir in base buildah k8s-tools java node; do
+            VAR_NAME=$(echo "${dir}_changed" | tr '[:lower:]-' '[:upper:]_')
+            if [[ "$REBUILD_ALL" == "true" ]] || echo "$CHANGED_FILES" | grep -q "^${dir}/"; then
+              VALUE=true
+            else
+              VALUE=false
+            fi
+            echo "${VAR_NAME}=${VALUE}" >> $GITHUB_ENV
+            echo "${VAR_NAME}=${VALUE}"
+          done
 
       - name: Determine image tag
         shell: bash
@@ -102,7 +93,8 @@ jobs:
             if [[ "$BRANCH" == "main" ]]; then
               IMG_TAGS="latest"
             else
-              IMG_TAGS=$BRANCH
+              # Sanitize branch name for use as image tag (replace / with -)
+              IMG_TAGS=$(echo "$BRANCH" | tr '/' '-')
             fi
           else
             IMG_TAGS="${{ steps.commit_data.outputs.short_sha }}"
@@ -126,7 +118,7 @@ jobs:
 
       - name: Build base image
         if: env.BASE_CHANGED == 'true'
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         id: build_base_img
         with:
           image: ${{ env.BASE_IMG_NAME }}
@@ -139,7 +131,7 @@ jobs:
 
       - name: Push base image
         if: steps.commit_data.outputs.is_pr == 'false' && env.BASE_CHANGED == 'true'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.BASE_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -168,7 +160,7 @@ jobs:
           env.BUILDAH_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         id: build_buildah
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ env.BUILDAH_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -184,7 +176,7 @@ jobs:
         if: |
           steps.build_buildah.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.BUILDAH_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -195,9 +187,9 @@ jobs:
       - name: Build K8s tools image
         if: |
           always() &&
-          env.K8S-TOOLS_CHANGED == 'true' &&
+          env.K8S_TOOLS_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         id: build_k8s
         with:
           image: ${{ env.K8S_TOOLS_IMG_NAME }}
@@ -214,7 +206,7 @@ jobs:
         if: |
           steps.build_k8s.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.K8S_TOOLS_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -228,7 +220,7 @@ jobs:
           env.NODE_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         id: build_node
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ env.NODE_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -244,7 +236,7 @@ jobs:
         if: |
           steps.build_node.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.NODE_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -258,7 +250,7 @@ jobs:
           env.JAVA_CHANGED == 'true' &&
           env.BUILD_CHILDREN == 'true'
         id: build_java
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ env.JAVA_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}
@@ -274,7 +266,7 @@ jobs:
         if: |
           steps.build_java.outcome == 'success' &&
           steps.commit_data.outputs.is_pr == 'false'
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ env.JAVA_IMG_NAME }}
           tags: ${{ env.IMG_TAGS }}

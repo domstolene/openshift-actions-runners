@@ -1,12 +1,12 @@
 # OpenShift GitHub Actions Runners
 
-[![Update Runner Images](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/update_images.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/update_images.yml)
-[![Link checker](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/link_check.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runner/actions/workflows/link_check.yml)
+[![Update Runner Images](https://github.com/redhat-actions/openshift-actions-runners/actions/workflows/update_images.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runners/actions/workflows/update_images.yml)
+[![Link checker](https://github.com/redhat-actions/openshift-actions-runners/actions/workflows/link_check.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runners/actions/workflows/link_check.yml)
 
-[![Tag](https://img.shields.io/github/v/tag/redhat-actions/openshift-actions-runner)](https://github.com/redhat-actions/openshift-actions-runner/tags)
-[![Quay org](https://img.shields.io/badge/quay-redhat--github--actions-red)](https://quay.io/organization/redhat-github-actions)
+[![Tag](https://img.shields.io/github/v/tag/redhat-actions/openshift-actions-runners)](https://github.com/redhat-actions/openshift-actions-runners/tags)
+[![Quay org](https://img.shields.io/badge/quay-redhat--github--actions-red)](https://quay.io/organization/redhat-github-actions/)
 
-This repository contains Containerfiles for building container images that act as [self-hosted GitHub Action runners](https://docs.github.com/en/free-pro-team@latest/actions/hosting-your-own-runners/about-self-hosted-runners) that work on OpenShift.
+This repository contains Containerfiles for building container images that act as [self-hosted GitHub Action runners](https://docs.github.com/en/actions/concepts/runners/self-hosted-runners) that work on OpenShift.
 
 The [**OpenShift Actions Runner Chart**](https://github.com/redhat-actions/openshift-actions-runner-chart) is used to deploy these images into a cluster, and the [**OpenShift Actions Runner Installer**](https://github.com/redhat-actions/openshift-actions-runner-installer) is an Action to automate the chart install.
 
@@ -19,7 +19,7 @@ The [**OpenShift Actions Runner Chart**](https://github.com/redhat-actions/opens
 
 The idea is that the base runner can be extended to build larger, more complex images that have additional capabilities. Refer to [Creating your own runner image](./base#creating-your-own-runner-image).
 
-The images are hosted at [quay.io/redhat-github-actions](https://quay.io/redhat-github-actions/).
+The images are hosted at [quay.io/redhat-github-actions](https://quay.io/organization/redhat-github-actions/).
 
 While these images are developed for and tested on OpenShift, they do not contain any OpenShift specific code and should be compatible with any Kubernetes platform.
 
@@ -28,7 +28,7 @@ Use the [**OpenShift Actions Runner Chart**](https://github.com/redhat-actions/o
 
 <a id="pat-guidelines"></a>
 ## Creating a Personal Access Token
-To register themselves with GitHub, the runners require a [GitHub Personal Access Token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) (PAT) which has the `repo` permission scope. This is provided to the container through the `GITHUB_PAT` environment variable.
+To register themselves with GitHub, the runners require a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) (PAT) which has the `repo` permission scope. This is provided to the container through the `GITHUB_PAT` environment variable.
 - The user who created the token must have administrator permission on the organization/repository the runner will be added to.
 - If the runner will be for an organization, the token must also have the `admin:org` permission scope.
 - [See an example](./pat-creation.png).
@@ -39,12 +39,12 @@ See the [base image README](./base/#own-image).
 ## Running Locally
 You can run the images locally to test and develop.
 
-To launch and connect a runner to `redhat-actions/openshift-actions-runner` with the labels `local` and `podman`:
+To launch and connect a runner to `redhat-actions/openshift-actions-runners` with the labels `local` and `podman`:
 ```sh
 podman run \
     --env GITHUB_PAT=$GITHUB_PAT \
     --env GITHUB_OWNER=redhat-actions \
-    --env GITHUB_REPOSITORY=openshift-actions-runner \
+    --env GITHUB_REPOSITORY=openshift-actions-runners \
     --env RUNNER_LABELS="local,podman" \
     quay.io/redhat-github-actions/runner:latest
 ```
@@ -94,9 +94,9 @@ If the containers crash on startup, it is usually because one of the environment
 - If the container crashes with an HTTP 404 error, the `GITHUB_OWNER` or `GITHUB_REPOSITORY` is incorrect or misspelled.
     - This will also happen if a private repository is selected which the `GITHUB_PAT` does not have permission to view.
 
-If you encounter any other issues, please [open an issue](https://github.com/redhat-actions/openshift-actions-runner/issues) and we will help you work through it.
+If you encounter any other issues, please [open an issue](https://github.com/redhat-actions/openshift-actions-runners/issues) and we will help you work through it.
 
 ## Credits
 This repository builds on the work done in [bbrowning/github-runner](https://github.com/bbrowning/github-runner), which is forked from [SanderKnape/github-runner](https://github.com/SanderKnape/github-runner).
 
-The Github App creation tutorial is heavily based on the excellent README in [actions-runner-controller/actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller)
+The Github App creation tutorial is heavily based on the excellent README in [actions-runner-controller/actions-runner-controller](https://github.com/actions/actions-runner-controller)
