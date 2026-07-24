@@ -22,4 +22,9 @@ jobs:
       - uses: actions/checkout@v7
       - uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose '**/*.md'
+          args: >-
+            --verbose
+            --exclude 'https://github\.com/settings/apps/new'
+            --exclude 'https://github\.com/organizations/.*/settings/apps/new'
+            --exclude 'https://docs\.redhat\.com/'
+            '**/*.md'
