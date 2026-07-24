@@ -44,10 +44,13 @@ extract() {
         exit 1
     fi
 
-    # Return using global var
-    # Match exact name or name with underscore suffix (e.g. yq_linux_amd64),
-    # but not hyphenated variants (e.g. tkn-pac).
-    extract_result=$(find $extract_dir -type f \( -name "$executable_name" -o -name "${executable_name}_*" \) | head -1)
+    # Return using global var.
+    # Try exact name match first, then fall back to prefix match.
+    # This avoids matching unwanted binaries (e.g. tkn-pac when looking for tkn).
+    extract_result=$(find $extract_dir -type f -name "$executable_name" | head -1)
+    if [[ -z $extract_result ]]; then
+        extract_result=$(find $extract_dir -type f -iname "$executable_name*" | head -1)
+    fi
 
     if [[ -z $extract_result ]]; then
         die "Could not find $executable_name in $extract_dir after extraction"
