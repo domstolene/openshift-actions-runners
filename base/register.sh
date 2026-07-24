@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Based on https://github.com/bbrowning/github-runner/blob/master/entrypoint.sh
 
 set -eE
 
 # Load Github app authentication helper function
-source ./get_github_app_token.sh
+. ./get_github_app_token.sh
 
 if [ -z "${GITHUB_OWNER:-}" ]; then
     echo "Fatal: \$GITHUB_OWNER must be set in the environment"

@@ -44,8 +44,13 @@ extract() {
         exit 1
     fi
 
-    # Return using global var
-    extract_result=$(find $extract_dir -type f -iname "$executable_name*")
+    # Return using global var.
+    # Try exact name match first, then fall back to prefix match.
+    # This avoids matching unwanted binaries (e.g. tkn-pac when looking for tkn).
+    extract_result=$(find $extract_dir -type f -name "$executable_name" | head -1)
+    if [[ -z $extract_result ]]; then
+        extract_result=$(find $extract_dir -type f -iname "$executable_name*" | head -1)
+    fi
 
     if [[ -z $extract_result ]]; then
         die "Could not find $executable_name in $extract_dir after extraction"
@@ -114,13 +119,13 @@ assert_env_var "HELM_VERSION"
 install helm ${MIRROR}/helm/${HELM_VERSION}/helm-linux-amd64.tar.gz
 
 assert_env_var "KN_VERSION"
-install kn ${MIRROR}/serverless/${KN_VERSION}/kn-linux-amd64-${KN_VERSION}.tar.gz
+install kn ${MIRROR}/serverless/${KN_VERSION}/kn-linux-amd64.tar.gz
 
 assert_env_var "OC_VERSION"
 install oc ${MIRROR}/ocp/${OC_VERSION}/openshift-client-linux.tar.gz
 
 assert_env_var "TKN_VERSION"
-install tkn ${MIRROR}/pipeline/${TKN_VERSION}/tkn-linux-amd64-${TKN_VERSION}.tar.gz
+install tkn ${MIRROR}/pipeline/${TKN_VERSION}/tkn-linux-amd64.tar.gz
 
 assert_env_var "YQ_VERSION"
 install yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64.tar.gz

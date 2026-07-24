@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Adapted from https://stackoverflow.com/a/62646786 and
 # Github's docs: https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#authenticating-as-a-github-app
 
