@@ -91,7 +91,7 @@ fi
 if [ -n "${RUNNER_TOKEN:-}" ]; then
     set -x
     ./config.sh \
-        --name $(hostname) \
+        --name ${RUNNER_NAME:-$(hostname)} \
         --token ${RUNNER_TOKEN} \
         --url ${registration_url} \
         --work ${RUNNER_WORKDIR} \

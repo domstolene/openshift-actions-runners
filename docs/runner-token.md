@@ -15,6 +15,7 @@ podman run \
     --env GITHUB_OWNER=redhat-actions \
     --env GITHUB_REPOSITORY=openshift-actions-runner \
     --env RUNNER_LABELS="local,podman" \
+    --env RUNNER_NAME=redhat-actions-runner-0
     --rm -v runner:/persistence \
     --entrypoint='' \
     quay.io/redhat-github-actions/runner:latest \
