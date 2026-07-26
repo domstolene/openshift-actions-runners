@@ -5,6 +5,17 @@
 
 set -eE
 
+# If a custom CA certificate is provided, configure Node.js to trust it.
+# This is needed for GitHub Enterprise servers with self-signed certificates.
+if [ -n "${CUSTOM_CA_CERT:-}" ]; then
+    if [ -f "${CUSTOM_CA_CERT}" ]; then
+        echo "Configuring Node.js to trust custom CA certificate: ${CUSTOM_CA_CERT}"
+        export NODE_EXTRA_CA_CERTS="${CUSTOM_CA_CERT}"
+    else
+        echo "Warning: CUSTOM_CA_CERT is set to '${CUSTOM_CA_CERT}' but the file does not exist."
+    fi
+fi
+
 CREDS_FILE="${PWD}/.credentials"
 
 # Assume registration artifacts have been persisted from a previous start

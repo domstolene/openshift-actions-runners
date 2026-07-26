@@ -29,6 +29,8 @@ ENV RUNNER_WORKDIR /home/${USERNAME}/_work
 ENV RUNNER_GROUP ""
 ENV RUNNER_LABELS ""
 ENV EPHEMERAL ""
+# Path to a custom CA certificate file for GitHub Enterprise with self-signed certs
+ENV CUSTOM_CA_CERT ""
 
 # Allow group 0 to modify these /etc/ files since on openshift, the dynamically-assigned user is always part of group 0.
 # Also see ./uid.sh for the usage of these permissions.

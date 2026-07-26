@@ -87,6 +87,19 @@ and use the GitHub API at
 https://github.mycompany.com/api/v3/
 ```
 
+### Custom CA Certificates
+If your GitHub Enterprise server uses a self-signed certificate, set the `CUSTOM_CA_CERT` environment variable to the path of your CA certificate file inside the container. This configures both `curl` (for runner registration) and Node.js (for the runner process) to trust the certificate.
+
+```sh
+podman run \
+    --env GITHUB_PAT=$GITHUB_PAT \
+    --env GITHUB_OWNER=myorg \
+    --env GITHUB_DOMAIN=github.mycompany.com \
+    --env CUSTOM_CA_CERT=/certs/ca.crt \
+    -v /path/to/ca.crt:/certs/ca.crt:ro \
+    quay.io/redhat-github-actions/runner:latest
+```
+
 ## Troubleshooting
 If the containers crash on startup, it is usually because one of the environment variables is missing or misconfigured. Make sure to read the container logs carefully to make sure the variables' values are set as expected.
 
