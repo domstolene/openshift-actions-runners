@@ -55,9 +55,9 @@ jobs:
             REBUILD_ALL=true
           else
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} | grep -v '\.md$')
+              CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} | grep -v '\.md$' || true)
             else
-              CHANGED_FILES=$(git diff --name-only HEAD~1 | grep -v '\.md$')
+              CHANGED_FILES=$(git diff --name-only HEAD~1 | grep -v '\.md$' || true)
             fi
             echo "Changed files (excluding docs):"
             echo "$CHANGED_FILES"
