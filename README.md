@@ -16,6 +16,7 @@ The [**OpenShift Actions Runner Chart**](https://github.com/redhat-actions/opens
 3. The [**K8s tools runner**](./k8s-tools) installs a set of CLIs used to work with Kubernetes.
 4. The [**Node.js runner**](./node) includes a Node.js runtime.
 5. The [**Java runner**](./java) includes a JDK and JRE.
+6. The [**.NET runner**](./dotnet) includes the .NET 10 SDK.
 
 The idea is that the base runner can be extended to build larger, more complex images that have additional capabilities. Refer to [Creating your own runner image](./base#creating-your-own-runner-image).
 
