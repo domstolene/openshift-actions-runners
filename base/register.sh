@@ -22,6 +22,13 @@ fi
 
 echo "GitHub API server is '$GITHUB_API_SERVER'"
 
+# Build common curl options
+CURL_OPTS="-sSfL"
+if [ -n "${CUSTOM_CA_CERT:-}" ]; then
+    echo "Using custom CA certificate from \$CUSTOM_CA_CERT"
+    CURL_OPTS="${CURL_OPTS} --cacert ${CUSTOM_CA_CERT}"
+fi
+
 if [ -z "${GITHUB_REPOSITORY:-}" ] && [ -n "${GITHUB_REPO:-}" ]; then
     GITHUB_REPOSITORY=$GITHUB_REPO
 fi
@@ -52,10 +59,10 @@ if [ -z "${RUNNER_TOKEN:-}" ]; then
     if [ -n "${GITHUB_APP_ID:-}" ] && [ -n "${GITHUB_APP_INSTALL_ID:-}" ] && [ -n "${GITHUB_APP_PEM:-}" ]; then
         echo "GITHUB_APP environment variables are set. Using GitHub App authentication."
         app_token=$(get_github_app_token)
-        payload=$(curl -sSfLX POST -H "Authorization: token ${app_token}" ${token_url})
+        payload=$(curl ${CURL_OPTS} -X POST -H "Authorization: token ${app_token}" -H "Content-Length: 0" ${token_url})
     else
         echo "Using GITHUB_PAT for authentication."
-        payload=$(curl -sSfLX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url})
+        payload=$(curl ${CURL_OPTS} -X POST -H "Authorization: token ${GITHUB_PAT}" -H "Content-Length: 0" ${token_url})
     fi
 
     export RUNNER_TOKEN=$(echo $payload | jq .token --raw-output)
@@ -104,7 +111,7 @@ if [ -n "${RUNNER_TOKEN:-}" ]; then
 fi
 
 remove() {
-    payload=$(curl -sSfLX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url%/registration-token}/remove-token)
+    payload=$(curl ${CURL_OPTS} -X POST -H "Authorization: token ${GITHUB_PAT}" -H "Content-Length: 0" ${token_url%/registration-token}/remove-token)
     export REMOVE_TOKEN=$(echo $payload | jq .token --raw-output)
 
     ./config.sh remove --unattended --token "${REMOVE_TOKEN}"
@@ -112,7 +119,7 @@ remove() {
 
 remove_github_app() {
     app_token=$(get_github_app_token)
-    payload=$(curl -sSfLX POST -H "Authorization: token ${app_token}" ${token_url%/registration-token}/remove-token)
+    payload=$(curl ${CURL_OPTS} -X POST -H "Authorization: token ${app_token}" -H "Content-Length: 0" ${token_url%/registration-token}/remove-token)
     export REMOVE_TOKEN=$(echo $payload | jq .token --raw-output)
 
     ./config.sh remove --unattended --token "${REMOVE_TOKEN}"
