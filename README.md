@@ -1,3 +1,16 @@
+> **This project is no longer actively maintained.**
+>
+> We recommend migrating to [Actions Runner Controller (ARC)](https://github.com/actions/actions-runner-controller),
+> the official self-hosted runner solution maintained by GitHub. ARC provides
+> Kubernetes-native autoscaling, scale-to-zero, and active maintenance from
+> the GitHub community.
+>
+> For more information, see the
+> [official documentation](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/about-actions-runner-controller).
+>
+> The existing container images in this repository remain available for current
+> deployments, but they will not receive new features or regular updates.
+
 # OpenShift GitHub Actions Runners
 
 [![Update Runner Images](https://github.com/redhat-actions/openshift-actions-runners/actions/workflows/update_images.yml/badge.svg)](https://github.com/redhat-actions/openshift-actions-runners/actions/workflows/update_images.yml)
