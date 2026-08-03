@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: redhat-actions/common/commit-data@v1
+      - uses: redhat-actions/common/commit-data@v2
         id: commit_data
 
       - uses: lots0logs/gh-action-get-changed-files@2.2.2
