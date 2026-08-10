@@ -24,7 +24,7 @@ RUN curl -fsSL https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/
     tar xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     rm apache-maven-${MAVEN_VERSION}-bin.tar.gz
 ENV JAVA_HOME=/usr/lib/jvm/java
-RUN sudo ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn
+RUN sudo ln -sf /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn
 RUN mvn -version
 
 RUN sudo chmod 4711 /usr/bin/ping
