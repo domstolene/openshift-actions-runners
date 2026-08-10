@@ -21,7 +21,6 @@ RUN dnf -y upgrade --security && \
 
 ARG MAVEN_VERSION=3.9.16
 RUN curl -fsSL https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz -o apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
-    file apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
     tar xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     rm apache-maven-${MAVEN_VERSION}-bin.tar.gz
 ENV JAVA_HOME=/usr/lib/jvm/java
