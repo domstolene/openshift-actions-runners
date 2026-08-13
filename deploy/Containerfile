@@ -13,9 +13,8 @@ RUN dnf -y upgrade --security && \
     iputils \
     samba-client \
     wget \
-    unzip \
     gettext-envsubst \
-    java-21-openjdk-devel \
+    java-25-openjdk-devel \
     python3-winrm && \
     dnf clean all
 
