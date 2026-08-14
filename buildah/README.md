@@ -8,7 +8,7 @@ In order for OpenShift containers to run Buildah and Podman, the user or Service
 
 Buildah has a [very good tutorial](https://github.com/containers/buildah/blob/main/docs/tutorials/05-openshift-rootless-build.md) detailing how to run buildah in OpenShift.
 
-You can also refer to the OpenShift documentation [Managing Security Context Constraints](https://docs.openshift.com/container-platform/4.6/authentication/managing-security-context-constraints.html), and [this blog post](https://www.openshift.com/blog/managing-sccs-in-openshift).
+You can also refer to the OpenShift documentation [Managing Security Context Constraints](https://docs.redhat.com/en/documentation/openshift_container_platform/4.6/html/authentication_and_authorization/managing-pod-security-policies), and [this blog post](https://www.openshift.com/blog/managing-sccs-in-openshift).
 
 ## Deploying the buildah pod
 
