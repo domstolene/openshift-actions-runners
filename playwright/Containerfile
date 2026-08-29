@@ -21,23 +21,13 @@ RUN dnf install -y \
     libXrandr libXrender libXtst wget xdg-utils gettext-envsubst yq && \
     dnf clean all
 
-# Install Playwright
-RUN npm init -y && \
-    npm install -g playwright@1
-
-# Set up Playwright browsers directory with correct permissions
+# Set up a writable Playwright browsers directory for workflows that want to
+# cache browser downloads inside the runner container.
 RUN mkdir -p /ms-playwright && \
     chown -R 1001:1001 /ms-playwright && \
     chmod -R 755 /ms-playwright
 
-# Switch to the default user for installing browsers
 USER 1001
-
-# Download and install Playwright browsers
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-# Kjører kun chromium i CI, men kunne installert firefox og webkit dersom vi ser
-# det blir mye feil på kryss av nettlesere.
-RUN npx playwright install chromium
 
 # Set the entry point to the entrypoint.sh script
 ENTRYPOINT ["/home/runner/entrypoint.sh"]
