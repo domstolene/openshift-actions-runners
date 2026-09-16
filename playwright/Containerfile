@@ -22,8 +22,9 @@ RUN dnf install -y \
     dnf clean all
 
 # Install Playwright
+# Når npm 11 (node 24+) er tilgjengelig kan følgende kommando erstatte --before: echo "min-release-age=1" >> ~/.npmrc
 RUN npm init -y && \
-    npm install -g playwright@1
+    npm install -g playwright@1 --before "$(date --date yesterday -u --iso-8601=date)"
 
 # Set up Playwright browsers directory with correct permissions
 RUN mkdir -p /ms-playwright && \
